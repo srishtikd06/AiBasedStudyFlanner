@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Planner</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4ff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px #cccccc;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4338ca;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #4338ca;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #312e81;
+        }
+
+        .task {
+            background: #eef2ff;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: green;
+        }
+
+        #progress {
+            font-weight: bold;
+            color: #4338ca;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 AI Study Planner</h1>
+    <p>Plan smarter, study better, achieve more!</p>
+
+    <input type="text" id="subject"
+           placeholder="Enter subject name">
+
+    <input type="text" id="topic"
+           placeholder="Enter topic to study">
+
+    <input type="date" id="examDate">
+
+    <input type="number" id="hours"
+           placeholder="Daily study hours"
+           min="1" max="24">
+
+    <button onclick="generatePlan()">
+        Generate Study Plan
+    </button>
+
+    <h2>Your Study Plan</h2>
+
+    <div id="plan"></div>
+
+    <p id="progress">Progress: 0%</p>
+
+</div>
+
+<script>
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    function generatePlan() {
+        const subject =
+            document.getElementById("subject").value.trim();
+
+        const topic =
+            document.getElementById("topic").value.trim();
+
+        const examDate =
+            document.getElementById("examDate").value;
+
+        const hours =
+            Number(document.getElementById("hours").value);
+
+        if (!subject || !topic || !examDate || !hours) {
+            alert("Please fill in all the fields!");
+            return;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const exam = new Date(examDate + "T00:00:00");
+        const daysLeft = Math.ceil(
+            (exam - today) / (1000 * 60 * 60 * 24)
+        );
+
+        if (daysLeft < 0) {
+            alert("Please select a future exam date!");
+            return;
+        }
+
+        const plan = document.getElementById("plan");
+
+        plan.innerHTML = "";
+
+        totalTasks = 3;
+        completedTasks = 0;
+
+        const tasks = [
+            {
+                title: "Learn " + topic,
+                duration: Math.max(1, Math.round(hours * 30)) + " minutes"
+            },
+            {
+                title: "Practice " + topic,
+                duration: Math.max(1, Math.round(hours * 20)) + " minutes"
+            },
+            {
+                title: "Revise " + topic,
+                duration: Math.max(1, Math.round(hours * 10)) + " minutes"
+            }
+        ];
+
+        const heading = document.createElement("h3");
+        heading.textContent = subject + " Study Schedule";
+        plan.appendChild(heading);
+
+        const info = document.createElement("p");
+        info.textContent = daysLeft === 0
+            ? "Your exam is today!"
+            : "Days until exam: " + daysLeft;
+        plan.appendChild(info);
+
+        tasks.forEach(function(task) {
+            const div = document.createElement("div");
+            div.className = "task";
+
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+
+            checkbox.type = "checkbox";
+            checkbox.style.width = "auto";
+
+            const text = document.createElement("span");
+            text.textContent =
+                task.title + " — " + task.duration;
+
+            checkbox.addEventListener("change", function() {
+                text.classList.toggle(
+                    "completed",
+                    checkbox.checked
+                );
+
+                completedTasks += checkbox.checked ? 1 : -1;
+
+                document.getElementById("progress").textContent =
+                    "Progress: " +
+                    Math.round(
+                        completedTasks / totalTasks * 100
+                    ) + "%";
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(text);
+            div.appendChild(label);
+            plan.appendChild(div);
+        });
+
+        document.getElementById("progress").textContent =
+            "Progress: 0%";
+    }
+</script>
+
+</body>
+</html>
